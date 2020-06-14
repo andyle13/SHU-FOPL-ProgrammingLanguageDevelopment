@@ -1,0 +1,57 @@
+$Main init():
+  #Decimal boundaryArray<5.00> <- <4.00, 5.00, 6.00, 7.00, 8.00>
+  #Decimal number <- 13.00
+  
+  stepthru(#Decimal var in boundaryArray):
+    number <- add(number, call mathematics(boundaryArray<var>))
+    output(number)
+    [end]
+  
+  call mutateNumber(divide(number, 9.00))
+
+$Func mathematics(Decimal number):
+  number <- multiply(number, 2.00)
+  number <- subtract(number, number)
+  number <- add(number, 9.00)
+  number <- divide(number, 3.00)
+  
+  #Decimal quickMaths <- subtract(add(2.00, 2.00), 1.00)
+  number <- power(number, quickMaths)
+  return number
+  [end]
+
+
+$Func mutateNumber(Decimal number):
+  #Decimal backupNo <- number
+  interval(and(greater(number, 1.00), negate(equals(backupNo, 0.00)))):
+    trigger(number):
+      choice 3.00:
+        number <- multiply(number, number)
+        output(number)
+        [end]
+      choice 5.00:
+        number <- subtract(add(number, 1.00), number)
+        output(number)
+        [end]
+      choice 9.00:
+        number <- add(number, 1.00)
+        output(number)
+        [end]
+      choice 10.00: 
+        number <- divide(number, 2.00)
+        output(number)
+        [end]
+      standard:
+        number <- 666.00
+        output(number)
+        [end]
+      [end]
+    [end]
+  number <- call revampNumber()
+  output(number)
+  
+  #Func revampNumber():
+    #Decimal refiner <- 1.75
+    return add(refiner, add(backupNo, number))
+    [end]
+  [end]

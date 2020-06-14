@@ -1,0 +1,8 @@
+$Main init():
+  #Decimal cero <- 0.00
+  #String welcome <- "enter something"
+  #String enter
+  
+  output(welcome)
+  input(enter)
+  output("enter", enter)

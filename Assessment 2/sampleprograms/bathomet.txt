@@ -1,0 +1,20 @@
+$Main init():
+  #Boolean isTrue <- false
+  #Decimal baphomet <- 83.25
+  
+  initiate:
+    baphomet <- multiply(baphomet, 2.00)
+    isTrue <- call isSatan(baphomet)
+  interval(equals(isTrue, false)) [end]
+  output(baphomet, "is reborn")
+
+$Func isSatan(Decimal baphomet):
+  verify(equals(baphomet, 666.00)):
+    output("Isatanshallbringsalvationtoearth")
+    return true
+    [end]
+  divert:
+    output("I am not satan")
+    return false
+    [end]
+  [end]

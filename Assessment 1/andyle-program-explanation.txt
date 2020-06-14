@@ -1,0 +1,221 @@
+The sample program provided will cover every element based on the ANTLR4 grammar.
+
+At the very start of the code, there is a multi-lined comment section which briefly introduces
+the reader to the high-level programming language NovaLingua. It is enclosed by a forward-slash
+followed by an asterisk "/*" and an asterisk followed by a forward-slash "*/" as in it is usually
+known in programming languages such as C++ or Java. It is defined by the following grammar:
+
+multi_cmt : MCMTOPN NEWLINE* MCMTCLS ;
+
+In the follow-up, there is a single lined comment starting with "//" which is separated from the
+multi-lined comment by a new line which is defined as follows:
+
+single_cmt : SCOMMENT CHARSET* ;
+
+That comment states that global and constant data types are initialised outside the main body.
+Apart from the main body, this program consists of a multiple number of functions whose overall
+structure is described as:
+
+structure : ((comments | vardec_stmt SEMI) NEWLINE*)* main_body (NEWLINE* functions)* ;
+
+Before the main body, it is possible to put comments, initialise global "$" or constant "%"
+variables which can be separated by multiple new lines. It is not mandatory though which is 
+expressed by the asterisk "*", standing for zero or many. Having a main body is compulsory but
+depending on how the program operates, it is possible to include or exclude functions.
+
+The signature of the main body is always global "$" which is called "$Main init():". Without
+including it, this program would not be able to run in the first place:
+
+main_body : GLOBAL MAIN INIT PAROPN PARCLS block ;
+
+But where is the colon ":"? Please note that the main_body includes a parser rule named "block".
+A block is a construct holding multiple declarations, statements and methods which is defined as:
+
+block : COLON (block_indent+ | WS+)
+ (
+ 	(iostream | function_call | functions | control_stmt | vardec_stmt | comments)
+ 	block_indent+
+ )* NEWLINE+ ;
+ 
+A block is indented by two whitespaces in NovaLingua:
+
+block_indent : NEWLINE '  '? ;
+
+There is a question mark after the two whitespaces which determines the end of the block. If the
+rejects putting these whitespaces after a new line, then the block structure will end.
+
+To start with the main program, it consists of declared local "#" variables and arrays which cover
+every permitted data types which are String, Boolean and Decimal. They consist of a scope symbol,
+the data type's name and a label. In terms of label, array always have a container enclosed with
+two chevrons "<x>" where x determines a numerical value for its capacity. Furthermore, it is
+possible to assign "<-" data to them which is enforced by the following parser rule:
+
+vardec_stmt : ((SCOPE VARID)? VARLBL
+ 	(ASSIGNER
+ 		(VALUES | ARRAYITEMS | arith_op | function_call | ternary_con)
+ 	)? COMMA?)* ;
+ 	
+Existing variables do not need to be labelled with a scope and a data type name again but they can
+be reassigned by new data as a means to update or replace them. Some variables are declared but
+are not initialised which can purposefully be done in later parts of the program. As far as it
+concerns the scope types which is comprised of global, local and constant symbols, it must be
+taken into consideration that global properties exist throughout all parts of the program whose
+data can be altered, local properties can only be accessed and modified within a block structure
+and its sub-blocks which can be functions within a function and constant variables which act like
+global variables but their data cannot be changed.
+
+After the variable declarions, the program promts the user to input data into the variable message
+to output a string. Assuming the user inputs "London" to assign it to message, it would output
+"Hello London". The parser rule for that is defined by the following grammars:
+
+iostream : input | output ;
+input : IN PAROPN (DECIMAL | STRING) PARCLS ;
+output
+ : OUT PAROPN (
+ (DECIMAL | STRING | arith_op | function_call | ternary_con | reduce_func | calculus_op)
+ COMMA?)+ PARCLS ;
+
+This program consists of functions which are assignable to declared variables and callable with
+the reserved word "call" in front of the method's label. Function overloading is possible by
+putting data inside the actual argument list enclosed with two parenthesis "(variable label)".
+Multiple data are separated by a comma. A function call is syntactically defined as:
+
+function_call : CALL FUNCLBL PAROPN actual_argument PARCLS ;
+actual_argument : ((VARLBL | DECIMAL | STRING | BOOLEAN | arith_op | function_call) COMMA?)* ;
+
+The function "mathematics()" takes one formal parameter which is number whose initial value is 1.
+The most-outer function is alway global which is, in this instance, signified by "$Func". Formal
+parameters are not scoped since they are merely copies accessible within that function only whose
+existence ceases once the function terminates. Their formal signature is defined as follows:
+
+functions : (GLOBAL | LOCAL) FUNC FUNCLBL PAROPN formal_argument PARCLS block returner? ;
+formal_argument : (VARID VARLBL COMMA?)* ;
+
+Functions have blocks like the main body and may have a return statement if their function call
+is to be assigned to a variable. "mathematics()" performs mathematical operations which are in
+this case multiplication, subtraction, addition and division. The left-most parameter is the
+target of an operation whose value is to be altered by the right-most one. Mathematical operations
+must always be assigned to a variable as follows:
+
+math_op
+ : OPERATORS PAROPN (DECIMAL | VARLBL | arith_op | function_call)
+ COMMA (DECIMAL | VARLBL | arith_op | function_call) PARCLS;
+ 
+NovaLingua supports nested methods which can be seen at the newly declared variable "quickMaths"
+whose data assigned is the subtraction between the addition of 2 and 2, and 1. The most-inner
+method goes first before going a step outside. Speaking of the function, it has a return statement
+which assigns the mutated value of number's copy to the main body's number.
+
+The next function "truth()" takes a Boolean parameter whose function runs recursively. It has an
+if-else condition ("verify" and "divert" in this language) based on the value of "isTrue". If the
+condition is met, it will call the function itself but passes the Boolean value "false" instead of
+"isTrue". Once invoked, "isTrue" will hold the value false as formal parameter which in turn will
+divert to an alternative path to return false. Since the function's callee receives that value, it
+must be taken into consideration that there is a not outside the called function which negates the
+false into true. The appropriate parser rules for this methods are:
+
+if_stmt : IF PAROPN condition PARCLS block (ELSE block)? ;
+condition : negate_expr | logic_expr | comp_expr | bool_expr ;
+negate_expr : NOT PAROPN (condition | function_call | logic_expr | BOOLEAN | VARLBL) PARCLS ;
+
+An if-statement does not necessarily have an else condition but it all depends on the way the user
+wants to implement the program. "not()" functions only take one parameter to invert conditions and
+Boolean values.
+
+In the function "ultimateNumber()", it is noticeable that its actual parameter takes the addition
+of the sum of "constant" and "global", and the "mathematics()" function's return while its return
+statement returns a mathematical method. The return statement in NovaLingua is versatile as it can
+return the following values based on the grammar defined:
+
+returner : DECIMAL | STRING | VARLBL | arith_op | condition | function_call | ternary_con;
+arith_op : math_op | incdec_op ;
+math_op : OPERATORS PAROPN (DECIMAL | VARLBL | arith_op | function_call)
+ COMMA (DECIMAL | VARLBL | arith_op | function_call) PARCLS;
+
+A special aspect about functions in NovaLingua is shown in the function "mutateNumber()" which
+takes the "number" divided by 9. The function starts with a while-loop ("interval" in this
+context) whose condition is a logical "and" between checking if "number" is greater than 1 and
+checking if "backupNo" is not equal 0. "not(equals(x, y))" is a nested logical condition to
+produce a logical "nand". The parser rule for this loop is:
+
+while_loop : WHILE PAROPN condition PARCLS ;
+logic_expr
+ : LOGIC PAROPN (condition | function_call | BOOLEAN | VARLBL)
+ COMMA (condition | function_call | BOOLEAN | VARLBL) PARCLS ;
+ 
+Apart from the logical "and" condition, there is also an "or" condition whose property can be
+negated to produce a "nor" statement with the "not()" method.
+
+In the while-loop, there is a switch-case statement ("trigger and choice" in NovaLingua) which
+changes the value of "number" based on its value. Switch-case is defined as follows:
+
+switch_case_stmt
+ : SWITCH PAROPN VARLBL PARCLS block (CASE (DECIMAL | STRING) block BREAK)*
+    DEFAULT block BREAK ;
+    
+In a switch-case statement, having "break" within each choices and a default choice are compulsory
+to leave the control statement. Without it, each choice would be triggered sequentially. Once a
+choice has been chosen, it will return to the while-loop to check if "number" is any further
+changeable. Once the loop has been exited, it will call a function called "revampFunction()".
+What seems to be remarkable about that function is, that it only exists within "mutateNumber()" as
+a local function which means it belongs to its main function and cannot be accessed globally other
+than by "mutateNumber". Properties from "mutateNumber()" can be accessed by its sub-function but
+not the other way around.
+
+The following function called "traverseArray()" will take an array as parameter "capacityArray" to
+introduce the for-loops of which there are the natural variant and the for-each-loop. Starting
+with the for-each-loop, it will create a local variable called "extractor" to assign each array's
+element to it as means to output it. The natural for-loop uses a Decimal as an index, a condition
+and either a incrementor or a decrementor as a means to access the array element stored in an
+index location. The grammars for this function is defined by the following lexer rules:
+
+for_loop : FOR PAROPN (for_index COMMA for_comp COMMA incdec_op | COLON ARRAY) PARCLS ;
+for_index : LOCAL DEC VARLBL ASSIGNER DECIMAL ;
+for_comp : COMPARATORS PAROPN VARLBL COMMA (DECIMAL | VARLBL) PARCLS ;
+incdec_op : INDECR PAROPN (VARLBL) PARCLS ;
+
+Having covered all the basic features in regards to this programming language, NovaLingua is
+offering support for data analysis which includes array slicing and calculus based methods.
+
+Calling the function "arraySlicing()", it is noticeable that the array passed has a boundary "~"
+from 1 to 4. This feature is quite useful, if users are only interested in a specific range of
+values. In "arraySlicing()"'s sub-function "arrayElementCalculation()", the passed in array's 
+boundary has been reduced to produce the total value of each numerical element in the array within
+that range. To do so, the use of arrElMerge is required which utilises an anonymous function
+("#Anon") whose data type is not known but it has an assigned behaviour marked by the "§" symbol
+which can be an arithmetic operator such as "add()" in the example. Array slicing uses the
+following grammar:
+
+reduce_func : REDUCE PAROPN lambda_func (math_op | comp_expr) COMMA VARLBL ;
+lambda_func : LOCAL LAMBDA VARLBL (COMMA? VARLBL)* MODE ;
+
+The final data analytical feature presented in this language is calculus which is being presented
+by the function "algebra()". To initialise a polynomial function, the method mFun() must be used
+which assigns a string to the method's name. Since this language is still in an early beta stage,
+only one polynomial function can be used. Further calculus operations can be performed such as
+solving a function, deriving and integrating it. To solve a function, using the "eval()" method is
+quite suitable as it takes two parameters which are the function and an anonymous function to
+input x. To derive a function, the "diff()" method must be used which takes the function only as
+a parameter. Lastly, to integrate a function, the "ingr()" must be used which takes the function,
+an anonymous function which uses the "bnd()" method to substitute x twice as per the parametric
+boundaries specified. "ingr()" automatically performs a reversed derivation to perform integral
+calculation between the bounds. The function uses the following grammar:
+
+calculus_op : init_func | eval_stmt | diff_stmt | ingr_stmt ;
+init_func : INITFUNC PAROPN STRING PARCLS ;
+eval_stmt : EVALUATE PAROPN INITFUNC COMMA lambda_func DECIMAL PARCLS ;
+diff_stmt : DERIVE PAROPN (INITFUNC | STRING) PARCLS ;
+ingr_stmt : INTEGRATE PAROPN INITFUNC COMMA lambda_func boundary PARCLS ;
+boundary : BOUND PAROPN DECIMAL COMMA DECIMAL PARCLS ;
+
+To finish the program, it will conclude with a ternary assignment to the newly declared Decimal
+variable named "versus" which checks whether "global" is greater than "novaNumero" to decide,
+whether it will copy the value of global or novaNumero. The grammar for it is as follows:
+
+// ternary condition
+ternary_con
+ : PAROPN condition PARCLS QM (DECIMAL | STRING | VARLBL | arith_op | function_call)
+ COLON (DECIMAL | STRING | VARLBL | arith_op | function_call) ;
+ 
+As this language is a completely new programming language, it will help data analysts to reap the
+fruits of NovaLingua in the near future with further features to come. 

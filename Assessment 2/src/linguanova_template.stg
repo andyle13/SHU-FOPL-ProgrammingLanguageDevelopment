@@ -1,0 +1,23 @@
+globalVariable(v, value) ::= "var <v> = <value>"
+localVariable(v, value) ::= "let <v><value>"
+assignVariable(v, value) ::= "<v><value>"
+enterMain_body() ::= "main_init();<\n><\n>function main_init() {"
+output(v) ::= <<alert(<v; separator="+">)>>
+input (v) ::= "<v> = prompt(\"Input\")"
+reservedWord(v) ::= "<v>"
+funcCall(v, arg) ::= <<<v>(<arg; separator=", ">)>>
+enterFunction(v, arg) ::= <<function <v>(<arg; separator=", ">) {>>
+enterSwitch(v) ::= "switch(<v>) {"
+enterCase(v)  ::= "case <v>:"
+enterDefault() ::= "default:"
+exitCase() ::= "break;"
+ifStmt(cond) ::= "if(<cond>) {"
+elseStmt() ::= "else {"
+while(cond) ::= "while(<cond>) {"
+do() ::= "do {"
+dowhile(cond) ::= "} while(<cond>);"
+for(v, i, cond, t) ::= "for(var <v> = <i>; <cond>; <t>) {"
+foreach(v, a) ::= "for(var <v> in <a>) {"
+return(v) ::= "return <v>"
+comma() ::= ", "
+exit_block() ::= "}<\n>"

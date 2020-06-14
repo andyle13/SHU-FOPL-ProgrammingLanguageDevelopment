@@ -1,0 +1,130 @@
+/*Introduction to NovaLingua:
+The following language based on the ANTLR4 grammar named NovaLingua is a flexible function-based,
+imperative programming language which does not use utilise comparison, logical and mathematical
+symbols. In terms of function-based programming, it uses the chain rule principle working from the
+most-inner function to the outer one. Using simple English terms will facilitate user
+experience for programming and this language is majorly inspired by Python in regards to their
+block structure. Furthermore, it offers special features such as array slicing, anonymous functions
+and mathematical operations based on calculus.*/
+
+// initialise global and constant variables respectively
+%Decimal constant <- 7.00;
+$Decimal global <- 13.00;
+
+// main body
+$Main init():
+  // initialise a string array
+  #String capacityArray<3.00> <- <“Hello”, “Herr”, “Einstein”>
+
+  // initialise an decimal array for mathematical purposes
+  #Decimal boundaryArray<5.00> <- <4.00, 5.00, 6.00, 7.00, 8.00>
+
+  // declare and initialise local variables
+  #String message
+  #Boolean isTrue <- true
+  #Decimal number <- 1.00, novaNumero
+
+  // input and output Hello message
+  input(message)
+  output(“Hello ”, message)
+
+  // assign a data via function calls
+  number <- call mathematics(number)
+  isTrue <- call truth(isTrue)
+      
+  // pass by value by overloading mathematical operations and a called function simultaneously
+  novaNumero <- ultimateNumber(add(add(constant, global), call mathematics(number)))
+  
+  // pass by value without returning a value
+  mutateNumber(divide(number, 9.00))
+  
+  // pass by value arrays
+  call traverseArray(capacityArray)
+
+  // pass sliced array by value
+  call arraySlicing(boundaryArray<1.00~4.00>)
+  
+  // perform calculus operations
+  call algebra()
+  
+  // ternary assignment
+  #Decimal versus <- (global > novaNumero) ? global : novaNumero
+
+$Func mathematics(Decimal number):
+  number <- multiply(number, 2.00)		// multiply 2 with 1
+  number <- subtract(number, number)	// subtract 2 with itself
+  number <- add(number, 9.00)			// add 9 to 0
+  number <- divide(number, 3.00)		// divide 9 by 3
+
+  #Decimal quickMaths <- subtract(add(2.00, 2.00), 1.00)  // "2 + 2 is 4, -1 that's 3 quick maths"
+  number <- to_power(number, quickMaths)  // raise number to the power of 3
+  return number
+  
+$Func truth(Boolean isTrue):
+  // check if isTrue is true
+  verify(equals(isTrue, true)):
+    return not(call truth(false)) // perform recursion to return the data negated
+  // if isTrue is false choose the alternative path
+  divert:
+    return false
+
+$Func ultimateNumber(Decimal numeroMagica):
+  #Decimal numeroOriginale <- numeroMagica // backup the passed value
+  numeroMagica <- multiply(numeroMagica, 2.00) // double the passed value
+  numeroMagica <- multiply(numeroMagica, 5.00) // multiply it by 5
+  numeroMagica <- divide(numeroMagica, numeroOriginale) // divide it with its start value
+  return add(numeroMagica, 3.00) // return 13
+
+$Func mutateNumber(Decimal number):
+  #Decimal backupNo <- number // backup the passed value
+  // while loop and switch case statement; trigger dependent on the value of number
+  interval(and(greater_than(number, 1.00), not(equals(backupNo, 0)):
+    trigger(number):
+      choice 3.00:
+        number <- multiply(number, number) // multiply the variable with itself
+        break
+      choice 5.00:
+        number <- subtract(add(number, 1.00), number) // assign 1 to number
+        break
+      choice 9.00:
+        number <- add(number, 1) // add 1 to number
+        break
+      choice 10.00: 
+        number <- divide(number, 2) // half number
+        break
+      default:
+        number <- 666.00 // random assignment
+        break
+  // assign the return of the called function to number
+  number <- call revampNumber()
+
+  // local function, a subfunction, only accessible by the main function itself
+  #Func revampNumber():
+    #Decimal refiner <- 1.75
+    return add(refiner, add(backupNo, number))
+
+$Func traverseArray(String<> array):
+  // for each element loop
+  for(#String extractor : array):
+    output(extractor)
+  // natural for loop
+  for(#Decimal i <- 0.00, less_than(i, array.length), inc(i)):
+    output(array<i>)
+
+$Func arraySlicing(Decimal<1.00~4.00> array):
+  // multiply each array element between the range of 1 and 4 by 2
+  multiply(array<1.00~4.00>, 2.00)
+  output(array<1.00~4.00>)
+  call arrayElementCalculation(array<2.00~3.00>)
+  
+  // produce the total value of each numerical element in the array between 2 and 3
+  #Func arrayElementCalculation(Decimal<2.00~3.00> array):
+    #Decimal arrayValue <- arrElMerge(#Anon x, y § add(x, y), array<2.00~3.00>)
+    output(arrayValue)
+
+$Func algebra():
+  // initialise a polynomial function
+  mFun("x^3+x^2-1") // argument must be string (high-level)
+  output(eval(mFun, #Anon x [decode] 13.00)) // assign 13 to x to solve the polynomial function
+  diff(mFun) // assign the differentiated function to function 
+  output(ingr(mFun, #Anon x [decode] bnd(2.00, 5.00))) // perform integral calculation between the boundaries of 2 and 5

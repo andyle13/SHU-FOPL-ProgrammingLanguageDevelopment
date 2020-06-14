@@ -1,0 +1,272 @@
+grammar LinguaNova;
+
+/*compartmentalise the code structure into three parts for global
+ *declarations, main body and functions.
+ */
+structure
+ : ((comments | vardec_stmt SEMI) NEWLINE*)* main_body (NEWLINE* functions)* ;
+
+//block structure of main body, functions and control statements 	
+block
+ : COLON (block_indent+ | WS+)
+ (
+ 	(iostream | function_call | functions | control_stmt | vardec_stmt | comments)
+ 	block_indent+
+ )* NEWLINE+ ;
+
+// signature of main body
+main_body
+ : GLOBAL MAIN INIT PAROPN PARCLS block ;
+
+// method signature
+functions
+ : (GLOBAL | LOCAL) FUNC FUNCLBL PAROPN formal_argument PARCLS block returner? ;
+
+// function call signature
+function_call
+ : CALL FUNCLBL PAROPN actual_argument PARCLS ;
+
+// argument list for function overloading
+actual_argument
+ : ((VARLBL | DECIMAL | STRING | BOOLEAN | arith_op | function_call) COMMA?)* ;
+
+// argument list with formal parameter(s)
+formal_argument
+ : (VARID VARLBL COMMA?)* ;
+
+// block indentation rule
+block_indent
+ : NEWLINE '  '? ;
+
+// input and output functions
+iostream
+ : input | output ;
+
+// input
+input
+ : IN PAROPN (DECIMAL | STRING) PARCLS ;
+
+// output
+output
+ : OUT PAROPN (
+ (DECIMAL | STRING | arith_op | function_call | ternary_con | reduce_func | calculus_op)
+ COMMA?)+ PARCLS ;
+
+// control statement signatures
+control_stmt
+ : ( if_stmt | switch_case_stmt | while_loop | for_loop ) block ;
+
+// if-statement   
+if_stmt
+ : IF PAROPN condition PARCLS block (ELSE block)? ;
+
+// switch-case statement
+switch_case_stmt
+ : SWITCH PAROPN VARLBL PARCLS block (CASE (DECIMAL | STRING) block BREAK)*
+    DEFAULT block BREAK ;
+
+// while-loop    
+while_loop
+ : WHILE PAROPN condition PARCLS ;
+
+// for (each) loop    
+for_loop
+ : FOR PAROPN
+ ( for_index COMMA for_comp COMMA incdec_op
+ | COLON ARRAY
+ ) PARCLS ;
+
+// explicit for loop index 	 
+for_index
+ : LOCAL DEC VARLBL ASSIGNER DECIMAL ;
+
+// explicit for loop condition
+for_comp
+ : COMPARATORS PAROPN VARLBL COMMA (DECIMAL | VARLBL) PARCLS ;
+
+// general condition for if and while statements
+condition
+ : negate_expr | logic_expr | comp_expr | bool_expr ;
+
+// ternary condition
+ternary_con
+ : PAROPN condition PARCLS QM
+ (DECIMAL | STRING | VARLBL | arith_op | function_call)
+ COLON
+ (DECIMAL | STRING | VARLBL | arith_op | function_call) ;
+
+// not-logic expression
+negate_expr
+ : NOT PAROPN (condition | function_call | logic_expr | BOOLEAN | VARLBL) PARCLS ;
+
+// general logic (excl. not) expression
+logic_expr
+ : LOGIC PAROPN (condition | function_call | BOOLEAN | VARLBL)
+ COMMA (condition | function_call | BOOLEAN | VARLBL) PARCLS ;
+
+// numerical comparison expression
+comp_expr
+ : COMPARATORS PAROPN
+ (function_call | DECIMAL | STRING | arith_op | VARLBL) COMMA
+ (function_call | DECIMAL | STRING | arith_op | VARLBL) PARCLS ;
+
+// boolean expression
+bool_expr
+ : EQUAL PAROPN VARLBL COMMA BOOLEAN PARCLS ;
+
+// mathematic operation
+arith_op
+ : math_op | incdec_op ;
+
+// basic mathematical operators
+math_op
+ : OPERATORS PAROPN (DECIMAL | VARLBL | arith_op | function_call)
+ COMMA (DECIMAL | VARLBL | arith_op | function_call) PARCLS;
+ 
+// incrementation and decrementation
+incdec_op
+ : INDECR PAROPN (VARLBL) PARCLS ;
+
+// comment styles
+comments
+ : single_cmt | multi_cmt ;
+
+// single lined comment 
+single_cmt
+ : SCOMMENT CHARSET* ;
+
+// multi lined comment 
+multi_cmt
+ : MCMTOPN NEWLINE* MCMTCLS;
+
+// variable declaration statement
+vardec_stmt
+ : ((SCOPE VARID)?
+ 	VARLBL
+ 	(ASSIGNER
+ 		(VALUES | ARRAYITEMS | arith_op | function_call | ternary_con)
+ 	)?
+ 	COMMA?
+ )* ;
+
+// reduce function
+reduce_func
+ : REDUCE PAROPN lambda_func (math_op | comp_expr) COMMA VARLBL ;
+
+// anonymous function
+lambda_func
+ : LOCAL LAMBDA VARLBL (COMMA? VARLBL)* MODE ;
+
+// calculus operations
+calculus_op
+ : init_func | eval_stmt | diff_stmt | ingr_stmt ;
+
+// initialise a polynomial function
+init_func
+ : INITFUNC PAROPN STRING PARCLS ;
+
+// solve a polynomial function
+eval_stmt
+ : EVALUATE PAROPN INITFUNC COMMA lambda_func DECIMAL PARCLS ;
+
+// differentiate a polynomial function 
+diff_stmt
+ : DERIVE PAROPN (INITFUNC | STRING) PARCLS ;
+ 
+// integrate a polynomial function
+ingr_stmt
+ : INTEGRATE PAROPN INITFUNC COMMA lambda_func boundary PARCLS ;
+
+// set the boundary of an integral function in conjunction with an anonymous function only
+boundary
+ : BOUND PAROPN DECIMAL COMMA DECIMAL PARCLS ;
+ 
+// return statememt
+returner
+ : DECIMAL | STRING | VARLBL | arith_op | condition | function_call | ternary_con;
+
+INIT : 'init' ;
+MAIN : 'Main' ;
+CALL : 'call' ;
+FUNC : 'Func' ;
+FUNCLBL : LETTERS+ ;
+IN : 'input' ;
+OUT : 'output' ;
+DECIMAL : NEGATIVE? DIGIT* FULLSTOP DIGIT+ ;
+STRING : STRINGER CHARSET* STRINGER;
+BOOLEAN : 'true' | 'false' ;
+LETTERS : [LOWERCASE UPPERCASE] ;
+CHARSET : [LOWERCASE UPPERCASE DIGIT WS SPECIALS] ;
+fragment LOWERCASE : [a-z] ;
+fragment UPPERCASE : [A-Z] ;
+fragment DIGIT : [0-9] ;
+STRINGER : '"' ;
+FULLSTOP : '.' ;
+COMMA : ',' ;
+COLON : ':' ;
+SPECIALS : [STRINGER FULLSTOP COMMA TILDE CONST GLOBAL LOCAL MODE NEGATIVE PAROPN PARCLS LCHEVR RCHEVR QM SEMI '+' '-' '*' '/' '&' '_'] ;
+DATA : SCOPE VARID VARLBL ;
+SCOPE : CONST | GLOBAL | LOCAL ;
+VARID : DEC | STR | BOOL ;
+VARLBL : LETTERS+ ARRAY? ;
+VALUES : DECIMAL | STRING | BOOLEAN ;
+ARRAY : LCHEVR DECIMAL (TILDE DECIMAL)? RCHEVR ;
+ARRAYITEMS : LCHEVR VALUES+ RCHEVR ;
+DEC : 'Decimal' ;
+STR : 'String' ;
+BOOL : 'Boolean' ;
+LAMBDA : 'Anon' ;
+SIZE : '.length' ;
+REDUCE : 'arrElMerge' ;
+CONST : '%' ;
+GLOBAL : '$' ;
+LOCAL : '#' ;
+MODE : '§' ;
+NEGATIVE : '!' ;
+ASSIGNER : '<-' ;
+TILDE : '~' ;
+OPERATORS : MUL | DIV | ADD | SUB | POW | MOD ;
+INDECR : INCR | DECR ;
+MUL : 'multiply';
+DIV : 'divide' ;
+ADD : 'add' ;
+SUB : 'subtract' ;
+POW : 'to_power' ;
+MOD : 'modulo' ;
+INCR : 'inc' ;
+DECR : 'dec' ;
+IF : 'verify' ;
+ELSE : 'divert' ;
+SWITCH : 'trigger' ;
+CASE : 'choice' ;
+DEFAULT : 'default' ;
+FOR : 'for' ;
+WHILE : 'interval' ;
+BREAK : 'break' ;
+COMPARATORS : EQUAL | GREQL | LSEQL | GREAT | LESS ;
+LOGIC : AND | OR ;
+NOT : 'negate' ;
+EQUAL : 'equals' ;
+GREAT : 'greater_than' ;
+GREQL : 'greater_equal' ;
+LSEQL : 'less_equal' ;
+LESS : 'less_than' ;
+AND : 'and' ;
+OR : 'or' ;
+ALGEBRA : INITFUNC | EVALUATE | DERIVE | INTEGRATE ;
+INITFUNC : 'mFun' ;
+EVALUATE : 'eval' ;
+DERIVE : 'diff' ;
+INTEGRATE : 'ingr' ;
+BOUND : 'bnd' ;
+PAROPN : '(' ;
+PARCLS : ')' ;
+LCHEVR : '<' ;
+RCHEVR : '>' ;
+QM : '?' ;
+SEMI : ';' ;
+NEWLINE : '\n' ;
+WS : ' ' ;
+SCOMMENT : '//' ;
+MCMTOPN : '/*' ;
+MCMTCLS : '*/' ;

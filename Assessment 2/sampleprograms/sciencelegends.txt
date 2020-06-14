@@ -1,0 +1,7 @@
+$Main init():
+  #String capacityArray<8.00> <- <"Legends", "Never", "Die", "Such", "As", "Einstein", "And", "Hawking">
+  
+  step(#Decimal i <- 0.00 / less(i, length(capacityArray)) / inc(i)):
+    output(capacityArray<i>)
+    [end]
+  
